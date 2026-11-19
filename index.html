@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Привычки, сон и фокус</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#10151f;--pn:rgba(22,30,44,.82);--ink:#eef2f7;--mut:#8f9bb0;--acc:#ff8a4c;--ok:#5fd38d;--line:rgba(255,255,255,.14);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#eef1f6;--pn:rgba(255,255,255,.88);--ink:#1a2233;--mut:#5d6a82;--line:rgba(0,0,0,.14)}}
+*{box-sizing:border-box}html,body{margin:0}body{font:15px/1.45 Onest,system-ui,sans-serif;color:var(--ink);background:var(--bg) center/cover fixed;min-height:100vh}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 16px;background:var(--pn);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav{display:flex;gap:4px;flex-wrap:wrap;flex:1}nav a{color:var(--mut);text-decoration:none;padding:6px 11px;border-radius:99px;font-weight:600}nav a.on{background:var(--ink);color:var(--bg)}
+.st{display:flex;gap:14px;font-weight:800}main{max-width:1000px;margin:0 auto;padding:18px 14px 60px}
+h1{font-size:26px;margin:0 0 12px;font-weight:800}h3{margin:0 0 8px}.card{background:var(--pn);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;backdrop-filter:blur(8px)}
+.sc{overflow-x:auto}table{border-collapse:collapse;font-size:13px}td,th{padding:3px 4px;text-align:center;border-bottom:1px solid var(--line)}td.nm{text-align:left;min-width:150px}
+input,textarea,select,button{font:inherit;color:inherit}input[type=text],input[type=date],input[type=time],input[type=datetime-local],input[type=number],textarea,select{background:transparent;border:1px solid var(--line);border-radius:8px;padding:6px 8px;max-width:100%}
+td.nm input{width:100%;border:0;padding:3px}input.n{width:44px}textarea{width:100%;min-height:90px}
+button{cursor:pointer;background:var(--acc);color:#1a1208;border:0;border-radius:8px;padding:7px 13px;font-weight:700}button.g{background:transparent;color:var(--ink);border:1px solid var(--line)}button.x{background:none;color:var(--mut);padding:0 6px}
+input:focus-visible,button:focus-visible,a:focus-visible,textarea:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}.big{font-size:40px;font-weight:800;line-height:1}.stats{display:flex;gap:22px;flex-wrap:wrap}.stats small{display:block;color:var(--mut)}
+.ch{width:100%;height:auto;max-height:200px}.q{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:640px){.q{grid-template-columns:1fr}}
+.q .card{margin:0}.t{display:flex;gap:8px;align-items:center;padding:4px 0}.t.d span{text-decoration:line-through;color:var(--mut)}
+.dy button{background:transparent;color:var(--mut);border:1px solid var(--line);padding:4px 9px}.dy button.on{background:var(--acc);color:#1a1208}
+.tm{min-height:calc(100vh - 150px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center}
+.tabs{display:flex;background:rgba(0,0,0,.35);border-radius:14px;padding:5px;gap:2px}.tabs button{background:none;color:#fff;padding:9px 18px}.tabs button.on{background:#fff;color:#111}
+.clock{font-size:clamp(80px,22vw,190px);font-weight:600;color:#fff;line-height:1;text-shadow:0 4px 30px rgba(0,0,0,.45);font-variant-numeric:tabular-nums}
+.pill{background:rgba(0,0,0,.35);color:#fff;border-radius:99px;padding:5px 14px;font-weight:700}.tm .b{background:#fff;color:#111;font-size:18px;padding:13px 30px;border-radius:12px}.tm .r{background:rgba(255,255,255,.2);color:#fff}
+.sh{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}.sw{height:90px;border-radius:10px;margin-bottom:8px;border:1px solid var(--line)}
+.sm label{display:block;margin:10px 0 3px;font-weight:700}.mut{color:var(--mut)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<header><b>Хабит-хаб</b><nav id="nav"></nav><div class="st"><span id="sk"></span><span id="pt"></span></div></header>
+<main id="app"></main>
+<script>
+const K='habithub_v1',$=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const p2=n=>String(n).padStart(2,'0'),fmt=d=>d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()),today=()=>fmt(new Date());
+const MN=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],WD=['пн','вт','ср','чт','пт','сб','вс'];
+const wdi=d=>(d.getDay()+6)%7;
+const DEF=['Спорт/движение','Нетворкинг/новые люди','Гидрация (2 л воды)','Чтение 20 мин','Цифровой детокс 1 час','Медитация 15 мин','Дневник 10 мин','Планирование 10 мин','Сон 8 часов до 23:00','Свой вариант'];
+const TH=[['Рассвет','linear-gradient(160deg,#10151f,#1d2b45 55%,#4a3a52)',0],['Горный храм','linear-gradient(180deg,#2b6c8f,#5aa3b8 45%,#3d5a45 100%)',30],['Закат','linear-gradient(160deg,#3b1f4a,#c2556b 60%,#f2a65a)',60],['Лес','linear-gradient(170deg,#0e2a22,#1f5a45 60%,#8fb87a)',100],['Космос','radial-gradient(circle at 70% 20%,#3a2a7a,#0a0720 70%)',150],['Сакура','linear-gradient(160deg,#4a2638,#d98aa6 70%,#f6d7de)',250]];
+let S;try{S=JSON.parse(localStorage.getItem(K))}catch(e){}
+S=Object.assign({pts:0,streak:0,last:'',bg:0,own:[0],habits:DEF.map((n,i)=>({id:i+1,name:n,n:7})),nid:11,chk:{},sleep:{},goal:{bed:'22:00',wake:'06:00'},tasks:{},notes:{},acts:[],att:{},smart:[],pm:{p:25,s:5,l:15,goal:10,done:{}}},S||{});
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
+const pt=n=>{S.pts=Math.max(0,S.pts+n);save();hdr()};
+function hdr(){$('#sk').textContent='🔥 '+S.streak;$('#pt').textContent='⭐ '+S.pts}
+(function(){const t=today();if(S.last!==t){const y=new Date();y.setDate(y.getDate()-1);S.streak=S.last===fmt(y)?S.streak+1:1;S.last=t;save()}})();
+const bg=()=>{document.body.style.backgroundImage=TH[S.bg][1]};
+function chart(v,lab,H=150){const W=640,n=v.length,x=i=>34+i*(W-48)/Math.max(1,n-1),y=p=>H-22-p*(H-34)/100;
+let s=`<svg viewBox="0 0 ${W} ${H}" class="ch" role="img" aria-label="График">`;
+[0,50,100].forEach(g=>s+=`<line x1="34" x2="${W-10}" y1="${y(g)}" y2="${y(g)}" stroke="var(--line)"/><text x="2" y="${y(g)+4}" fill="var(--mut)" font-size="10">${g}</text>`);
+s+=`<polyline fill="none" stroke="var(--acc)" stroke-width="2.5" points="${v.map((p,i)=>x(i)+','+y(p)).join(' ')}"/>`;
+v.forEach((p,i)=>{s+=`<circle cx="${x(i)}" cy="${y(p)}" r="3" fill="var(--acc)"/>`;if(n<=16||i%2==0)s+=`<text x="${x(i)}" y="${H-6}" font-size="9" text-anchor="middle" fill="var(--mut)">${lab[i]}</text>`});return s+'</svg>'}
+/* ---------- 1. привычки ---------- */
+let HM=new Date();HM.setDate(1);
+function pHabits(){const y=HM.getFullYear(),m=HM.getMonth(),D=new Date(y,m+1,0).getDate(),dk=d=>fmt(new Date(y,m,d)),exp=S.habits.reduce((a,h)=>a+h.n/7,0);
+let tot=0,done=0;const rows=S.habits.map(h=>{let c=0,cells='';for(let d=1;d<=D;d++){const on=(S.chk[dk(d)]||{})[h.id];if(on)c++;cells+=`<td><input type="checkbox" aria-label="${esc(h.name)} ${d}" ${on?'checked':''} onchange="hTog(${h.id},'${dk(d)}')"></td>`}
+const pl=Math.round(h.n*D/7);tot+=pl;done+=c;return `<tr><td class="nm"><input value="${esc(h.name)}" onchange="hEdit(${h.id},'name',this.value)"></td><td><input class="n" type="number" min="1" max="7" value="${h.n}" title="раз в неделю" onchange="hEdit(${h.id},'n',Math.min(7,Math.max(1,+this.value||7)))"></td>${cells}<td>${pl?Math.round(c/pl*100):0}%</td><td><button class="x" aria-label="Удалить" onclick="hDel(${h.id})">×</button></td></tr>`}).join('');
+let head='',pr='',v=[],lab=[];for(let d=1;d<=D;d++){const k=dk(d),c=Object.keys(S.chk[k]||{}).filter(id=>S.habits.some(h=>h.id==id)).length,p=exp?Math.min(100,Math.round(c/exp*100)):0;v.push(p);lab.push(d);head+=`<th>${d}<br><small class="mut">${WD[wdi(new Date(y,m,d))]}</small></th>`;pr+=`<td>${p}</td>`}
+const pc=tot?Math.round(done/tot*100):0;
+return `<h1>Привычки</h1><div class="card"><div class="row"><button class="g" onclick="hMon(-1)">←</button><b style="font-size:20px">${MN[m]} ${y}</b><button class="g" onclick="hMon(1)">→</button></div>
+<div class="stats"><div><span class="big">${pc}%</span><small>месячный прогресс</small></div><div><span class="big">${S.habits.length}</span><small>привычек</small></div><div><span class="big">${done}</span><small>достигнуто</small></div><div><span class="big">${Math.max(0,tot-done)}</span><small>недостигнуто</small></div></div></div>
+<div class="card sc"><table><tr><th>Привычка</th><th title="раз в неделю">р/нед</th>${head}<th>%</th><th></th></tr>${rows}<tr><td class="nm mut">Выполнено за день, %</td><td></td>${pr}<td></td><td></td></tr></table>
+<div class="row" style="margin-top:10px"><button onclick="hAdd()">+ Привычка</button><span class="mut">Отметка = +1 балл. «р/нед» — сколько раз в неделю нужна привычка (7 = каждый день).</span></div></div>
+<div class="card"><h3>Процент выполнения по дням</h3>${chart(v,lab)}</div>`}
+const hMon=n=>{HM.setMonth(HM.getMonth()+n);render()};
+function hTog(id,k){S.chk[k]=S.chk[k]||{};if(S.chk[k][id]){delete S.chk[k][id];pt(-1)}else{S.chk[k][id]=1;pt(1)}save();render()}
+function hEdit(id,f,v){S.habits.find(h=>h.id==id)[f]=v;save();render()}
+function hDel(id){if(confirm('Удалить привычку?')){S.habits=S.habits.filter(h=>h.id!=id);save();render()}}
+function hAdd(){S.habits.push({id:S.nid++,name:'Новая привычка',n:7});save();render()}
+/* ---------- 2. сон ---------- */
+let SM=new Date();SM.setDate(1);
+const hm=t=>{const[a,b]=t.split(':');return +a*60+ +b};
+function sleepScore(k,e){const wake=new Date(e.wake),bed=new Date(e.bed),D=new Date(k+'T00:00'),g=S.goal,gw=new Date(D.getTime()+hm(g.wake)*6e4);
+let gb=new Date(D.getTime()+hm(g.bed)*6e4);if(hm(g.bed)>hm(g.wake)+240)gb=new Date(gb.getTime()-864e5);
+const dev=Math.abs(bed-gb)/6e4+Math.abs(wake-gw)/6e4;return Math.max(1,Math.min(10,Math.round(10-dev/30)))}
+function pSleep(){const y=SM.getFullYear(),m=SM.getMonth(),D=new Date(y,m+1,0).getDate(),cw=22,x0=78,H=18,rh=15,top=34;let s=`<svg viewBox="0 0 740 ${top+D*rh+6}" class="ch" style="max-height:none" role="img" aria-label="График сна">`,hs=[],sc=[];
+for(let h=0;h<=H;h++){s+=`<line x1="${x0+h*cw}" x2="${x0+h*cw}" y1="${top}" y2="${top+D*rh}" stroke="var(--line)"/>`;if(h<H)s+=`<text transform="translate(${x0+h*cw+cw/2+3},${top-4}) rotate(-90)" font-size="9" fill="var(--mut)">${p2((20+h)%24)}:00</text>`}
+const gb=(hm(S.goal.bed)/60+(hm(S.goal.bed)<720?24:0))-20,gw=hm(S.goal.wake)/60+4;
+s+=`<line x1="${x0+gb*cw}" x2="${x0+gb*cw}" y1="${top}" y2="${top+D*rh}" stroke="var(--ok)" stroke-dasharray="4 3" stroke-width="2"/><line x1="${x0+gw*cw}" x2="${x0+gw*cw}" y1="${top}" y2="${top+D*rh}" stroke="var(--ok)" stroke-dasharray="4 3" stroke-width="2"/>`;
+const gx=370,gW=330;s+=`<text x="${gx}" y="${top-6}" font-size="9" fill="var(--mut)">часов сна (0–10)</text>`;let pts=[];
+for(let d=1;d<=D;d++){const k=fmt(new Date(y,m,d)),yy=top+(d-1)*rh;s+=`<line x1="4" x2="736" y1="${yy+rh}" y2="${yy+rh}" stroke="var(--line)"/><text x="4" y="${yy+11}" font-size="10" fill="var(--mut)">${d} ${WD[wdi(new Date(y,m,d))]}</text>`;
+const e=S.sleep[k];if(e){const st=new Date(k+'T00:00').getTime()-4*36e5,a=Math.max(0,(new Date(e.bed)-st)/36e5),b=Math.min(H,(new Date(e.wake)-st)/36e5),hrs=(new Date(e.wake)-new Date(e.bed))/36e5;
+s+=`<rect x="${x0+a*cw}" y="${yy+2}" width="${Math.max(2,(b-a)*cw)}" height="${rh-4}" rx="3" fill="var(--acc)" opacity=".85"/>`;pts.push((x0+H*cw+16+Math.min(10,hrs)/10*(740-x0-H*cw-26))+','+(yy+rh/2));hs.push(hrs);sc.push(sleepScore(k,e));
+s+=`<text x="${x0+H*cw+8}" y="${yy+11}" font-size="10" fill="var(--ink)">${hrs.toFixed(1)}ч · ${sleepScore(k,e)}/10</text>`}}
+s=s.replace(`<text x="${gx}"`,'<text x="0" style="display:none"');s+='</svg>';
+const avg=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length):0,now=new Date(),dl=(n=>new Date(now.getTime()-n*36e5*0)).call(0,0);
+const list=Object.keys(S.sleep).sort().reverse().slice(0,8).map(k=>{const e=S.sleep[k];return `<tr><td>${k}</td><td>${((new Date(e.wake)-new Date(e.bed))/36e5).toFixed(1)} ч</td><td><b>${sleepScore(k,e)}</b>/10</td><td><button class="x" onclick="slDel('${k}')">×</button></td></tr>`}).join('');
+return `<h1>Сон</h1><div class="card"><div class="row sm"><div><label>Лёг спать</label><input type="datetime-local" id="sb"></div><div><label>Проснулся</label><input type="datetime-local" id="sw"></div><button onclick="slAdd()" style="margin-top:28px">Сохранить сон</button></div></div>
+<div class="card"><div class="row sm"><div><label>Хочу ложиться в</label><input type="time" value="${S.goal.bed}" onchange="S.goal.bed=this.value||'22:00';save();render()"></div><div><label>Хочу вставать в</label><input type="time" value="${S.goal.wake}" onchange="S.goal.wake=this.value||'06:00';save();render()"></div>
+<div class="stats" style="margin-left:auto"><div><span class="big">${avg(sc).toFixed(1)}</span><small>дисциплина сна, 1–10</small></div><div><span class="big">${avg(hs).toFixed(1)}</span><small>среднее, часов</small></div></div></div><p class="mut" style="margin:0">Оценка 10 — вы легли и встали по плану. Каждые 30 минут отклонения от плана (сумма по отбою и подъёму) снижают оценку на 1. Зелёные линии — ваш план.</p></div>
+<div class="card"><div class="row"><button class="g" onclick="SM.setMonth(SM.getMonth()-1);render()">←</button><b style="font-size:20px">${MN[m]} ${y}</b><button class="g" onclick="SM.setMonth(SM.getMonth()+1);render()">→</button></div><div class="sc">${s}</div></div>
+<div class="card"><h3>Последние записи</h3><table>${list||'<tr><td class="mut">Пока пусто — введите, когда легли и проснулись.</td></tr>'}</table></div>`}
+function slAdd(){const b=$('#sb').value,w=$('#sw').value;if(!b||!w)return alert('Укажите время отбоя и подъёма');const h=(new Date(w)-new Date(b))/36e5;if(h<=0||h>24)return alert('Подъём должен быть позже отбоя, не более 24 часов');const k=w.slice(0,10),n=!S.sleep[k];S.sleep[k]={bed:b,wake:w};if(n)pt(2);save();render()}
+function slDel(k){delete S.sleep[k];save();render()}
+/* ---------- 3. Эйзенхауэр ---------- */
+let TD=today();const QN=[['Срочно и важно','Сделать сразу',3],['Важно, не срочно','Запланировать',2],['Срочно, не важно','Делегировать или быстро закрыть',1],['Не срочно, не важно','Отсеять',1]];
+function pTasks(){const L=S.tasks[TD]||[];const dn=L.filter(t=>t.d).length;
+return `<h1>Матрица Эйзенхауэра</h1><div class="card"><div class="row"><input type="date" value="${TD}" onchange="TD=this.value||today();render()"><span><b>${dn}</b> из ${L.length} выполнено</span><span class="mut">Баллы за задачу: 3 / 2 / 1 / 1</span></div></div><div class="q">`+QN.map((q,i)=>`<div class="card"><h3>${i+1}. ${q[0]}</h3><div class="mut" style="margin-bottom:6px">${q[1]}</div>${L.map((t,j)=>t.q==i?`<div class="t ${t.d?'d':''}"><input type="checkbox" ${t.d?'checked':''} onchange="tTog(${j})"><span style="flex:1">${esc(t.t)}</span><button class="x" onclick="tDel(${j})">×</button></div>`:'').join('')}<div class="row" style="margin:8px 0 0"><input type="text" id="tq${i}" placeholder="Новая задача" style="flex:1" onkeydown="if(event.key=='Enter')tAdd(${i})"><button onclick="tAdd(${i})">+</button></div></div>`).join('')+'</div>'}
+function tAdd(q){const v=$('#tq'+q).value.trim();if(!v)return;(S.tasks[TD]=S.tasks[TD]||[]).push({t:v,q,d:0});save();render()}
+function tTog(j){const t=S.tasks[TD][j];t.d=t.d?0:1;pt(t.d?QN[t.q][2]:-QN[t.q][2]);render()}
+function tDel(j){const t=S.tasks[TD][j];if(t.d)pt(-QN[t.q][2]);S.tasks[TD].splice(j,1);save();render()}
+/* ---------- 4. заметка и посещаемость ---------- */
+let ND=today();
+function pNotes(){const d=new Date(ND+'T00:00'),mon=new Date(d.getTime());mon.setDate(d.getDate()-wdi(d));const wk=[...Array(7)].map((_,i)=>{const x=new Date(mon);x.setDate(mon.getDate()+i);return x});
+const sch=(a,x)=>a.days.includes(wdi(x));let v=[],lab=[];for(let i=13;i>=0;i--){const x=new Date(d);x.setDate(d.getDate()-i);const k=fmt(x),pl=S.acts.filter(a=>sch(a,x));v.push(pl.length?Math.round(pl.filter(a=>(S.att[k]||{})[a.id]).length/pl.length*100):0);lab.push(x.getDate())}
+return `<h1>Заметка дня</h1><div class="card"><div class="row"><input type="date" value="${ND}" onchange="ND=this.value||today();render()"></div><textarea placeholder="Мысли и итог дня" oninput="S.notes[ND]=this.value;save()">${esc(S.notes[ND]||'')}</textarea></div>
+<div class="card sc"><h3>Посещаемость на неделе</h3><table><tr><th></th>${wk.map(x=>`<th>${WD[wdi(x)]}<br><small class="mut">${x.getDate()}</small></th>`).join('')}<th></th></tr>${S.acts.map(a=>`<tr><td class="nm">${esc(a.name)}</td>${wk.map(x=>{const k=fmt(x);return sch(a,x)?`<td><input type="checkbox" aria-label="${esc(a.name)} ${k}" ${(S.att[k]||{})[a.id]?'checked':''} onchange="aTog(${a.id},'${k}')"></td>`:'<td class="mut">–</td>'}).join('')}<td><button class="x" onclick="aDel(${a.id})">×</button></td></tr>`).join('')||'<tr><td class="mut">Добавьте занятие ниже.</td></tr>'}</table>
+<div class="row dy" style="margin-top:12px"><input type="text" id="an" placeholder="Бассейн, качалка, мечеть…">${WD.map((w,i)=>`<button id="ad${i}" onclick="this.classList.toggle('on')">${w}</button>`).join('')}<button onclick="aAdd()">+ Занятие</button></div><p class="mut" style="margin:6px 0 0">Отметка посещения = +2 балла. Несколько занятий в один день — можно.</p></div>
+<div class="card"><h3>Посещаемость за 14 дней, %</h3>${chart(v,lab)}</div>`}
+function aAdd(){const n=$('#an').value.trim(),days=[0,1,2,3,4,5,6].filter(i=>$('#ad'+i).classList.contains('on'));if(!n||!days.length)return alert('Введите название и выберите дни недели');S.acts.push({id:S.nid++,name:n,days});save();render()}
+function aTog(id,k){S.att[k]=S.att[k]||{};if(S.att[k][id]){delete S.att[k][id];pt(-2)}else{S.att[k][id]=1;pt(2)}save();render()}
+function aDel(id){S.acts=S.acts.filter(a=>a.id!=id);save();render()}
+/* ---------- 5. SMART ---------- */
+const SF=[['s','Specific — конкретно','Что именно я хочу достичь?'],['m','Measurable — измеримо','Как я пойму, что цель достигнута? Какие цифры?'],['a','Achievable — достижимо','Почему это реально при моих ресурсах?'],['r','Relevant — важно','Зачем мне это? С какой большой целью связано?'],['t','Time-bound — срок','Дата, к которой я это сделаю']];
+function pSmart(){return `<h1>Цели SMART</h1><div class="card sm"><label>Название цели</label><input type="text" id="sg" style="width:100%">${SF.map(f=>`<label>${f[1]}</label><textarea id="s_${f[0]}" placeholder="${f[2]}" style="min-height:60px"></textarea>`).join('')}<div class="row" style="margin-top:12px"><button onclick="sAdd()">Сохранить цель</button></div></div>`+S.smart.map((g,i)=>`<div class="card"><div class="row"><input type="checkbox" ${g.d?'checked':''} onchange="sTog(${i})" aria-label="Цель достигнута"><h3 style="margin:0;flex:1;${g.d?'text-decoration:line-through':''}">${esc(g.n)}</h3><button class="x" onclick="sDel(${i})">×</button></div>${SF.map(f=>g[f[0]]?`<div><b>${f[1].split(' ')[0]}:</b> ${esc(g[f[0]])}</div>`:'').join('')}</div>`).join('')+'<p class="mut">Достижение цели даёт +10 баллов.</p>'}
+function sAdd(){const n=$('#sg').value.trim();if(!n)return alert('Назовите цель');const g={n,d:0};SF.forEach(f=>g[f[0]]=$('#s_'+f[0]).value.trim());S.smart.unshift(g);save();render()}
+function sTog(i){const g=S.smart[i];g.d=g.d?0:1;pt(g.d?10:-10);render()}
+function sDel(i){if(S.smart[i].d)pt(-10);S.smart.splice(i,1);save();render()}
+/* ---------- 6. таймер ---------- */
+const T={m:'p',left:S.pm.p*60,run:false,end:0};let tick=null;
+const tl=m=>({p:'Pomodoro',s:'Short Break',l:'Long Break'}[m]);
+function beep(){try{const c=new AudioContext(),o=c.createOscillator();o.connect(c.destination);o.frequency.value=800;o.start();o.stop(c.currentTime+.6)}catch(e){}}
+function tUpd(){const c=$('#clk');if(c)c.textContent=p2(Math.floor(T.left/60))+':'+p2(T.left%60);document.title=T.run?p2(Math.floor(T.left/60))+':'+p2(T.left%60)+' · Хабит-хаб':'Привычки, сон и фокус';const b=$('#tgo');if(b)b.textContent=T.run?'Pause':'Start'}
+function tSet(m){clearInterval(tick);T.run=false;T.m=m;T.left=S.pm[m]*60;render()}
+function tGo(){if(T.run){clearInterval(tick);T.run=false;tUpd();return}T.run=true;T.end=Date.now()+T.left*1000;tick=setInterval(()=>{T.left=Math.max(0,Math.round((T.end-Date.now())/1000));tUpd();if(T.left<=0)tDone()},250);tUpd()}
+function tDone(){clearInterval(tick);T.run=false;beep();let nx='p';if(T.m=='p'){const t=today();S.pm.done[t]=(S.pm.done[t]||0)+1;pt(5);nx=S.pm.done[t]%4==0?'l':'s'}save();tSet(nx)}
+function pTimer(){const t=today(),n=S.pm.done[t]||0;return `<div class="tm"><div class="tabs">${['p','s','l'].map(m=>`<button class="${T.m==m?'on':''}" onclick="tSet('${m}')">${tl(m)}</button>`).join('')}</div><div class="pill">GOAL ${S.pm.goal} · сегодня ${n}</div><div class="clock" id="clk"></div><div class="row"><button class="b" id="tgo" onclick="tGo()">Start</button><button class="b r" onclick="tSet(T.m)">Reset</button></div>
+<details class="pill"><summary>Настройки</summary><div class="row" style="margin:10px 0 0;justify-content:center">${[['p','Работа'],['s','Короткий'],['l','Долгий'],['goal','Цель/день']].map(f=>`<label>${f[1]}<br><input type="number" min="1" max="180" style="width:70px;color:#fff" value="${S.pm[f[0]]}" onchange="S.pm['${f[0]}']=Math.max(1,+this.value||1);save();if(!T.run)T.left=S.pm[T.m]*60;tUpd()"></label>`).join('')}</div></details><div class="pill">Досидели до конца и не выключили таймер — +5 баллов</div></div>`}
+/* ---------- 7. магазин ---------- */
+function pShop(){return `<h1>Магазин фонов</h1><p class="mut">Баланс: ⭐ ${S.pts}. Фон виден на всех страницах, особенно на таймере.</p><div class="sh">${TH.map((t,i)=>`<div class="card"><div class="sw" style="background:${t[1]}"></div><b>${t[0]}</b><div class="row" style="margin:6px 0 0">${S.bg==i?'<span class="mut">Установлен</span>':S.own.includes(i)?`<button class="g" onclick="bgSet(${i})">Применить</button>`:`<button onclick="bgBuy(${i})">Купить · ${t[2]} ⭐</button>`}</div></div>`).join('')}</div>`}
+function bgSet(i){S.bg=i;save();bg();render()}
+function bgBuy(i){if(S.pts<TH[i][2])return alert('Не хватает баллов: нужно '+TH[i][2]);S.pts-=TH[i][2];S.own.push(i);S.bg=i;save();hdr();bg();render()}
+/* ---------- роутер ---------- */
+const R={habits:['Привычки',pHabits],sleep:['Сон',pSleep],tasks:['Матрица',pTasks],notes:['Заметки',pNotes],smart:['SMART',pSmart],timer:['Таймер',pTimer],shop:['Магазин',pShop]};
+function render(){const h=R[location.hash.slice(1)]?location.hash.slice(1):'habits',sc=document.querySelector('.sc'),sl=sc?sc.scrollLeft:0,y=scrollY;
+$('#nav').innerHTML=Object.keys(R).map(k=>`<a href="#${k}" class="${k==h?'on':''}">${R[k][0]}</a>`).join('');$('#app').innerHTML=R[h][1]();const s2=document.querySelector('.sc');if(s2)s2.scrollLeft=sl;scrollTo(0,y);tUpd();
+if(h=='sleep'){const n=new Date(),w=fmt(n)+'T07:00',b=new Date(n.getTime()-864e5);$('#sb').value=fmt(b)+'T22:00';$('#sw').value=w}}
+addEventListener('hashchange',render);bg();hdr();render();
+</script></body></html>
